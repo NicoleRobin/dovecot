@@ -92,6 +92,7 @@ struct maildir_mailbox {
 	unsigned int sync_uidlist_refreshed:1;
 };
 
+// 在maildir-mail.c中定义
 extern struct mail_vfuncs maildir_mail_vfuncs;
 
 /* Return -1 = error, 0 = file not found, 1 = ok */

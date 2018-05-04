@@ -662,6 +662,10 @@ bool maildir_is_backend_readonly(struct maildir_mailbox *mbox)
 	return mbox->backend_readonly;
 }
 
+
+// 该文件中定义的函数都是static的，所以是怎么调用到这些函数的呢？？？
+
+// 变量名居然和结构体名一样，很容易混淆的好伐。。。
 struct mail_storage maildir_storage = {
 	.name = MAILDIR_STORAGE_NAME,
 	.class_flags = MAIL_STORAGE_CLASS_FLAG_FILE_PER_MSG |
@@ -683,6 +687,7 @@ struct mail_storage maildir_storage = {
 	}
 };
 
+// 又一个变量名和结构体名一样的，。。。
 struct mailbox maildir_mailbox = {
 	.v = {
 		maildir_storage_is_readonly,

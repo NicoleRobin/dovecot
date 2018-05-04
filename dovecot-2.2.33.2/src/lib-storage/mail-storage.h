@@ -434,13 +434,18 @@ void mail_storage_init(void);
 void mail_storage_deinit(void);
 
 /* register all mail storages */
+// 该函数在该文件中定义 ./lib-storage/register/mail-storage-register.c
+// 该文件在执行configure是被生成，在该函数中调用mail_storage_class_register(&shared_storage);
+// 注册各个mail_storage
 void mail_storage_register_all(void);
 
 /* Register mail storage class with given name - all methods that are NULL
    are set to default methods */
+// 注册 mail storage
 void mail_storage_class_register(struct mail_storage *storage_class);
 void mail_storage_class_unregister(struct mail_storage *storage_class);
 /* Find mail storage class by name */
+// 通过名字查找mail storage
 struct mail_storage *mail_storage_find_class(const char *name);
 
 /* Create a new instance of registered mail storage class with given
