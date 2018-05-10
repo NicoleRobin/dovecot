@@ -23,6 +23,7 @@ sig_reopen_logs(const siginfo_t *si ATTR_UNUSED, void *context ATTR_UNUSED)
 
 static void main_init(void)
 {
+	// 设置信号处理函数
 	lib_signals_set_handler(SIGUSR1, LIBSIG_FLAGS_SAFE,
 				sig_reopen_logs, NULL);
 
@@ -58,6 +59,7 @@ int main(int argc, char *argv[])
 {
 	const char *error;
 
+	// 初始化服务
 	master_service = master_service_init("log", 0, &argc, &argv, "");
 
 	/* use log prefix and log to stderr until we've configured the real

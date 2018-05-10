@@ -512,6 +512,7 @@ static void ioloop_add_wait_time(struct ioloop *ioloop)
 		timer->usecs += diff;
 }
 
+// 处理定时事件
 static void io_loop_handle_timeouts_real(struct ioloop *ioloop)
 {
 	struct priorityq_item *item;
@@ -576,6 +577,7 @@ static void io_loop_handle_timeouts_real(struct ioloop *ioloop)
 	}
 }
 
+// 被io多路复用回调，处理定时事件
 void io_loop_handle_timeouts(struct ioloop *ioloop)
 {
 	T_BEGIN {
@@ -583,6 +585,7 @@ void io_loop_handle_timeouts(struct ioloop *ioloop)
 	} T_END;
 }
 
+// 被io多路复用回调，处理io事件
 void io_loop_call_io(struct io *io)
 {
 	struct ioloop *ioloop = io->ioloop;
@@ -607,6 +610,7 @@ void io_loop_call_io(struct io *io)
 		io_loop_context_deactivate(ioloop->cur_ctx);
 }
 
+// 启动事件循环
 void io_loop_run(struct ioloop *ioloop)
 {
 	if (ioloop->handler_context == NULL)
@@ -644,10 +648,12 @@ static void io_loop_call_pending(struct ioloop *ioloop)
 	}
 }
 
+// 调用io多路复用
 void io_loop_handler_run(struct ioloop *ioloop)
 {
 	io_loop_timeouts_start_new(ioloop);
 	ioloop->wait_started = ioloop_timeval;
+	// 根据编译时定义的宏决定调用哪种io多路复用后端（select、poll、epoll等）
 	io_loop_handler_run_internal(ioloop);
 	io_loop_call_pending(ioloop);
 }
@@ -687,8 +693,8 @@ struct ioloop *io_loop_create(void)
 	if (gettimeofday(&ioloop_timeval, NULL) < 0)
 		i_fatal("gettimeofday(): %m");
 	ioloop_time = ioloop_timeval.tv_sec;
-
-        ioloop = i_new(struct ioloop, 1);
+	
+	ioloop = i_new(struct ioloop, 1);
 	ioloop->timeouts = priorityq_init(timeout_cmp, 32);
 	i_array_init(&ioloop->timeouts_new, 8);
 
@@ -697,8 +703,8 @@ struct ioloop *io_loop_create(void)
 		io_loop_default_time_moved;
 
 	ioloop->prev = current_ioloop;
-        io_loop_set_current(ioloop);
-        return ioloop;
+    io_loop_set_current(ioloop);
+    return ioloop;
 }
 
 void io_loop_destroy(struct ioloop **_ioloop)

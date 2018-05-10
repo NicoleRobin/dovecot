@@ -129,6 +129,7 @@ static void master_service_verify_version_string(struct master_service *service)
 	}
 }
 
+// 初始化监听套接字
 static void master_service_init_socket_listeners(struct master_service *service)
 {
 	unsigned int i;
@@ -171,6 +172,7 @@ static void master_service_init_socket_listeners(struct master_service *service)
 		(service->flags & MASTER_SERVICE_FLAG_USE_SSL_SETTINGS) != 0;
 }
 
+// 初始化service
 struct master_service *
 master_service_init(const char *name, enum master_service_flags flags,
 		    int *argc, char **argv[], const char *getopt_str)
@@ -214,6 +216,7 @@ master_service_init(const char *name, enum master_service_flags flags,
 	if (getenv(MASTER_UID_ENV) == NULL)
 		flags |= MASTER_SERVICE_FLAG_STANDALONE;
 
+	// 初始化进程标题
 	process_title_init(argv);
 
 	service = i_new(struct master_service, 1);
@@ -225,6 +228,7 @@ master_service_init(const char *name, enum master_service_flags flags,
 		i_strdup(master_service_getopt_string()) :
 		i_strconcat(getopt_str, master_service_getopt_string(), NULL);
 	service->flags = flags;
+	// 创建事件循环
 	service->ioloop = io_loop_create();
 	service->service_count_left = UINT_MAX;
 	service->config_fd = -1;
@@ -236,6 +240,7 @@ master_service_init(const char *name, enum master_service_flags flags,
 	else
 		service->config_path_from_master = TRUE;
 
+	// 进行是独立运行的
 	if ((flags & MASTER_SERVICE_FLAG_STANDALONE) == 0) {
 		service->version_string = getenv(MASTER_DOVECOT_VERSION_ENV);
 		service->socket_count = 1;
@@ -556,6 +561,8 @@ void master_service_init_finish(struct master_service *service)
 						  master_status_error, service);
 		lib_signals_set_handler(SIGQUIT, 0, sig_close_listeners, service);
 	}
+
+	// 添加io listener
 	master_service_io_listeners_add(service);
 	if (service->want_ssl_settings &&
 	    (service->flags & MASTER_SERVICE_FLAG_NO_SSL_INIT) == 0)
@@ -717,7 +724,11 @@ const char *master_service_get_name(struct master_service *service)
 void master_service_run(struct master_service *service,
 			master_service_connection_callback_t *callback)
 {
+	// 设置新连接回调
 	service->callback = callback;
+	// 这里有个疑问，io_loop_run传入的是service->ioloop，因此在io_loop_run中无法获取service->call_back。
+	// 那么是什么时候回调service->call_back的呢？
+	// 答：service负责listen并接收新连接，该callback在master_service_finish中被设置为新连接到来时的回调
 	io_loop_run(service->ioloop);
 	service->callback = NULL;
 }
@@ -988,6 +999,7 @@ void master_service_deinit(struct master_service **_service)
 	lib_deinit();
 }
 
+// listen回调，即收到新连接时的回调
 static void master_service_listen(struct master_service_listener *l)
 {
 	struct master_service *service = l->service;
@@ -1049,10 +1061,12 @@ static void master_service_listen(struct master_service_listener *l)
 
 	net_set_nonblock(conn.fd, TRUE);
 
+	// 创建client connection
 	master_service_client_connection_created(service);
 	if (l->haproxy)
 		master_service_haproxy_new(service, &conn);
 	else
+		// 新连接回调
 		master_service_client_connection_callback(service, &conn);
 }
 
