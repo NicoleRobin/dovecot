@@ -135,6 +135,7 @@ index_attachment_open_ostream(struct istream_attachment_info *info,
 	return 0;
 }
 
+// 关闭输出流
 static int
 index_attachment_close_ostream(struct ostream *output, bool success,
 			       const char **error, void *context)
@@ -162,7 +163,7 @@ index_attachment_close_ostream(struct ostream *output, bool success,
 	return ret;
 }
 
-
+// 开始存储附件
 void index_attachment_save_begin(struct mail_save_context *ctx,
 				 struct fs *fs, struct istream *input)
 {
@@ -201,6 +202,7 @@ void index_attachment_save_begin(struct mail_save_context *ctx,
 	ctx->data.attach = attach;
 }
 
+// 检查是否有写入错误
 static int save_check_write_error(struct mail_storage *storage,
 				  struct ostream *output)
 {
@@ -214,6 +216,7 @@ static int save_check_write_error(struct mail_storage *storage,
 	return -1;
 }
 
+// 继续存储附件
 int index_attachment_save_continue(struct mail_save_context *ctx)
 {
 	struct mail_storage *storage = ctx->transaction->box->storage;
@@ -253,6 +256,7 @@ int index_attachment_save_continue(struct mail_save_context *ctx)
 	return 0;
 }
 
+// 结束存储附件
 int index_attachment_save_finish(struct mail_save_context *ctx)
 {
 	struct mail_save_attachment *attach = ctx->data.attach;
@@ -262,6 +266,7 @@ int index_attachment_save_finish(struct mail_save_context *ctx)
 	return attach->input->stream_errno == 0 ? 0 : -1;
 }
 
+// 释放附件数据
 void index_attachment_save_free(struct mail_save_context *ctx)
 {
 	struct mail_save_attachment *attach = ctx->data.attach;
@@ -273,6 +278,7 @@ void index_attachment_save_free(struct mail_save_context *ctx)
 	}
 }
 
+// 获取附件的外部引用
 const ARRAY_TYPE(mail_attachment_extref) *
 index_attachment_save_get_extrefs(struct mail_save_context *ctx)
 {
@@ -280,6 +286,7 @@ index_attachment_save_get_extrefs(struct mail_save_context *ctx)
 		&ctx->data.attach->extrefs;
 }
 
+// 实际执行删除附件操作
 static int
 index_attachment_delete_real(struct mail_storage *storage,
 			     struct fs *fs, const char *name)
@@ -296,6 +303,7 @@ index_attachment_delete_real(struct mail_storage *storage,
 	return ret;
 }
 
+// 删除附件
 int index_attachment_delete(struct mail_storage *storage,
 			    struct fs *fs, const char *name)
 {
@@ -307,6 +315,7 @@ int index_attachment_delete(struct mail_storage *storage,
 	return ret;
 }
 
+// 将附件信息append到邮件中
 void index_attachment_append_extrefs(string_t *str,
 	const ARRAY_TYPE(mail_attachment_extref) *extrefs)
 {
@@ -339,6 +348,7 @@ void index_attachment_append_extrefs(string_t *str,
 	}
 }
 
+// 解析附件解码选项
 static bool
 parse_extref_decode_options(const char *str,
 			    struct mail_attachment_extref *extref)
@@ -372,6 +382,7 @@ parse_extref_decode_options(const char *str,
 	return TRUE;
 }
 
+// 解析附件
 bool index_attachment_parse_extrefs(const char *line, pool_t pool,
 				    ARRAY_TYPE(mail_attachment_extref) *extrefs)
 {
@@ -408,7 +419,7 @@ bool index_attachment_parse_extrefs(const char *line, pool_t pool,
 	return TRUE;
 }
 
-// 读取邮件的时候被调用
+// 获取附件流，读取邮件的时候被调用
 int index_attachment_stream_get(struct fs *fs, const char *attachment_dir,
 				const char *path_suffix,
 				struct istream **stream, uoff_t full_size,

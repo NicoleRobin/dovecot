@@ -7,6 +7,7 @@
 #include "dbox-save.h"
 #include "dbox-attachment.h"
 
+// 写入附件元信息
 void dbox_attachment_save_write_metadata(struct mail_save_context *ctx,
 					 string_t *str)
 {
@@ -21,6 +22,7 @@ void dbox_attachment_save_write_metadata(struct mail_save_context *ctx,
 	str_append_c(str, '\n');
 }
 
+// 获取附件流
 static int
 dbox_attachment_file_get_stream_from(struct dbox_file *file,
 				     const char *ext_refs,
@@ -47,6 +49,7 @@ dbox_attachment_file_get_stream_from(struct dbox_file *file,
 	return 1;
 }
 
+// 获取附件流
 int dbox_attachment_file_get_stream(struct dbox_file *file,
 				    struct istream **stream)
 {
