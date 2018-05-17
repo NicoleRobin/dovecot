@@ -3,6 +3,7 @@
 
 #include "index-sort.h"
 
+// Ë÷ÒýÅÅÐò³ÌÐò£¿
 struct mail_search_sort_program {
 	struct mailbox_transaction_context *t;
 	enum mail_sort_type sort_program[MAX_SORT_PROGRAM_SIZE];

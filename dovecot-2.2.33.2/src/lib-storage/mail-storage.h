@@ -96,6 +96,7 @@ enum mailbox_status_items {
 	(STATUS_LAST_CACHED_SEQ | STATUS_CHECK_OVER_QUOTA)
 };
 
+// 邮箱元数据项
 enum mailbox_metadata_items {
 	MAILBOX_METADATA_GUID			= 0x01,
 	MAILBOX_METADATA_VIRTUAL_SIZE		= 0x02,
@@ -110,6 +111,7 @@ enum mailbox_metadata_items {
 	 MAILBOX_METADATA_FIRST_SAVE_DATE)
 };
 
+// 邮箱搜索结果标志
 enum mailbox_search_result_flags {
 	/* Update search results whenever the mailbox view is synced.
 	   Expunged messages are removed even without this flag. */
@@ -118,6 +120,7 @@ enum mailbox_search_result_flags {
 	MAILBOX_SEARCH_RESULT_FLAG_QUEUE_SYNC	= 0x02
 };
 
+// 邮件排序类型
 enum mail_sort_type {
 	MAIL_SORT_ARRIVAL	= 0x0001,
 	MAIL_SORT_CC		= 0x0002,
@@ -139,6 +142,7 @@ enum mail_sort_type {
 	MAIL_SORT_END		= 0x0000 /* ends sort program */
 };
 
+// 邮件拉取字段
 enum mail_fetch_field {
 	MAIL_FETCH_FLAGS		= 0x00000001,
 	MAIL_FETCH_MESSAGE_PARTS	= 0x00000002,
@@ -174,6 +178,7 @@ enum mail_fetch_field {
 	MAIL_FETCH_BODY_SNIPPET		= 0x01000000
 };
 
+// 邮箱事务标志
 enum mailbox_transaction_flags {
 	/* Hide changes done in this transaction from next view sync */
 	MAILBOX_TRANSACTION_FLAG_HIDE		= 0x01,
@@ -201,6 +206,7 @@ enum mailbox_transaction_flags {
 	MAILBOX_TRANSACTION_FLAG_FILL_IN_STUB	= 0x80,
 };
 
+// 邮箱同步标志
 enum mailbox_sync_flags {
 	/* Make sure we sync all external changes done to mailbox */
 	MAILBOX_SYNC_FLAG_FULL_READ		= 0x01,
@@ -223,6 +229,7 @@ enum mailbox_sync_flags {
 	MAILBOX_SYNC_FLAG_OPTIMIZE		= 0x400
 };
 
+// 邮箱同步类型
 enum mailbox_sync_type {
 	MAILBOX_SYNC_TYPE_EXPUNGE	= 0x01,
 	MAILBOX_SYNC_TYPE_FLAGS		= 0x02,
@@ -288,6 +295,7 @@ struct mailbox_cache_field {
 };
 ARRAY_DEFINE_TYPE(mailbox_cache_field, struct mailbox_cache_field);
 
+// 邮箱元数据
 struct mailbox_metadata {
 	guid_128_t guid;
 	/* sum of virtual size of all messages in mailbox */
@@ -310,6 +318,7 @@ struct mailbox_metadata {
 	enum mail_namespace_type backend_ns_type;
 };
 
+// 邮箱更新
 struct mailbox_update {
 	/* All non-zero fields are changed. */
 	guid_128_t mailbox_guid;
@@ -322,6 +331,7 @@ struct mailbox_update {
 	const struct mailbox_cache_field *cache_updates;
 };
 
+// 邮箱事务提交变化
 struct mail_transaction_commit_changes {
 	/* Unreference the pool to free memory used by these changes. */
 	pool_t pool;
@@ -381,6 +391,7 @@ enum mail_access_type {
 	MAIL_ACCESS_TYPE_SORT,
 };
 
+// 邮件
 struct mail {
 	/* always set */
 	struct mailbox *box;
@@ -402,6 +413,7 @@ struct mail {
 	   MAIL_LOOKUP_ABORT_NOT_IN_CACHE, this can't become TRUE. */
 	bool mail_metadata_accessed:1;
 
+	// 邮件访问类型
 	enum mail_access_type access_type;
 
 	/* If the lookup is aborted, error is set to MAIL_ERROR_NOTPOSSIBLE */

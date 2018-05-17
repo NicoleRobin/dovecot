@@ -109,6 +109,7 @@ struct mail_storage_error {
 	bool last_error_is_internal;
 };
 
+// 邮箱存储：到底是个什么概念？
 struct mail_storage {
 	const char *name;
 	enum mail_storage_class_flags class_flags;
@@ -165,6 +166,7 @@ struct mail_storage {
 	unsigned int last_error_is_internal:1;
 };
 
+// 邮件附件部分
 struct mail_attachment_part {
 	struct message_part *part;
 	const char *content_type, *content_disposition;
@@ -540,16 +542,19 @@ struct mail_private {
 	bool autoexpunged:1;
 };
 
+// 邮箱列表上下文
 struct mailbox_list_context {
 	struct mail_storage *storage;
 	enum mailbox_list_flags flags;
 	bool failed;
 };
 
+
 union mailbox_transaction_module_context {
 	struct mail_storage_module_register *reg;
 };
 
+// 邮箱事务统计数据
 struct mailbox_transaction_stats {
 	unsigned long open_lookup_count;
 	unsigned long stat_lookup_count;
@@ -569,6 +574,7 @@ struct mail_save_private_changes {
 	enum mail_flags flags;
 };
 
+// 邮箱事务上下文（事务是以邮箱为单位的）
 struct mailbox_transaction_context {
 	struct mailbox *box;
 	enum mailbox_transaction_flags flags;
@@ -578,6 +584,7 @@ struct mailbox_transaction_context {
 	struct mail_index_transaction_vfuncs super;
 	int mail_ref_count;
 
+	// 邮件索引事务
 	struct mail_index_transaction *itrans;
 	struct dict_transaction_context *attr_pvt_trans, *attr_shared_trans;
 	/* view contains all changes done within this transaction */
@@ -596,14 +603,17 @@ struct mailbox_transaction_context {
 	uint32_t prev_pop3_uidl_tracking_seq;
 	uint32_t highest_pop3_uidl_uid;
 
+	// 邮件存储上下文
 	struct mail_save_context *save_ctx;
 	/* number of mails saved/copied within this transaction. */
+	// 该事务中存储的邮件个数
 	unsigned int save_count;
 	/* List of private flags added with save/copy. These are added to the
 	   private index after committing the mails to the shared index. */
 	ARRAY(struct mail_save_private_changes) pvt_saves;
 
 	/* these statistics are never reset by mail-storage API: */
+	// 邮箱事务统计数据
 	struct mailbox_transaction_stats stats;
 	/* Set to TRUE to update stats_* fields */
 	unsigned int stats_track:1;
@@ -617,11 +627,16 @@ union mail_search_module_context {
 	struct mail_storage_module_register *reg;
 };
 
+// 邮件搜索上下文
 struct mail_search_context {
+	// 邮箱事务上下文
 	struct mailbox_transaction_context *transaction;
 
+	// 邮件搜索参数
 	struct mail_search_args *args;
+	// 邮件搜索程序
 	struct mail_search_sort_program *sort_program;
+	// 邮件拉取字段（通过此参数可以控制只查询邮件头）
 	enum mail_fetch_field wanted_fields;
 	struct mailbox_header_lookup_ctx *wanted_headers;
 	normalizer_func_t *normalizer;
@@ -643,6 +658,7 @@ struct mail_search_context {
 	unsigned int progress_hidden:1;
 };
 
+// 邮件保存数据
 struct mail_save_data {
 	enum mail_flags flags;
 	enum mail_flags pvt_flags;
@@ -660,14 +676,18 @@ struct mail_save_data {
 	struct mail_save_attachment *attach;
 };
 
+// 邮件保存上下文
 struct mail_save_context {
+	// 邮箱事务上下文
 	struct mailbox_transaction_context *transaction;
+	// 目的邮件
 	struct mail *dest_mail;
 	/* Set during mailbox_copy(). This is useful when copying is
 	   implemented via save, and the save_*() methods want to access the
 	   source mail. */
 	struct mail *copy_src_mail;
 
+	// 邮件内容
 	/* data that changes for each saved mail */
 	struct mail_save_data data;
 
@@ -696,6 +716,7 @@ struct mail_save_context {
 	unsigned int dest_mail_external:1;
 };
 
+// 邮箱同步上下文
 struct mailbox_sync_context {
 	struct mailbox *box;
 	enum mailbox_sync_flags flags;
