@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <utime.h>
 
+// 初始化路径
 static void sdbox_file_init_paths(struct sdbox_file *file, const char *fname)
 {
 	struct mailbox *box = &file->mbox->box;
@@ -31,6 +32,7 @@ static void sdbox_file_init_paths(struct sdbox_file *file, const char *fname)
 		file->file.alt_path = i_strdup_printf("%s/%s", alt_path, fname);
 }
 
+// 初始化文件
 struct dbox_file *sdbox_file_init(struct sdbox_mailbox *mbox, uint32_t uid)
 {
 	struct sdbox_file *file;
@@ -41,6 +43,7 @@ struct dbox_file *sdbox_file_init(struct sdbox_mailbox *mbox, uint32_t uid)
 	file->mbox = mbox;
 	T_BEGIN {
 		if (uid != 0) {
+			// 文件名
 			fname = t_strdup_printf(SDBOX_MAIL_FILE_FORMAT, uid);
 			sdbox_file_init_paths(file, fname);
 			file->uid = uid;
@@ -52,6 +55,7 @@ struct dbox_file *sdbox_file_init(struct sdbox_mailbox *mbox, uint32_t uid)
 	return &file->file;
 }
 
+// 创建文件
 struct dbox_file *sdbox_file_create(struct sdbox_mailbox *mbox)
 {
 	struct dbox_file *file;
@@ -62,6 +66,7 @@ struct dbox_file *sdbox_file_create(struct sdbox_mailbox *mbox)
 	return file;
 }
 
+// 释放文件
 void sdbox_file_free(struct dbox_file *file)
 {
 	struct sdbox_file *sfile = (struct sdbox_file *)file;
@@ -71,6 +76,7 @@ void sdbox_file_free(struct dbox_file *file)
 	dbox_file_free(file);
 }
 
+// 获取附件信息
 int sdbox_file_get_attachments(struct dbox_file *file, const char **extrefs_r)
 {
 	const char *line;
@@ -103,6 +109,7 @@ int sdbox_file_get_attachments(struct dbox_file *file, const char **extrefs_r)
 	return 1;
 }
 
+// 获取附件相对路径
 const char *
 sdbox_file_attachment_relpath(struct sdbox_file *file, const char *srcpath)
 {
@@ -121,6 +128,7 @@ sdbox_file_attachment_relpath(struct sdbox_file *file, const char *srcpath)
 			file->uid);
 }
 
+// 重命名附件，添加mailbox-giddy以及uid
 static int sdbox_file_rename_attachments(struct sdbox_file *file)
 {
 	struct dbox_storage *storage = file->file.storage;
@@ -147,6 +155,7 @@ static int sdbox_file_rename_attachments(struct sdbox_file *file)
 	return ret;
 }
 
+// 分配uid
 int sdbox_file_assign_uid(struct sdbox_file *file, uint32_t uid,
 			  bool ignore_if_exists)
 {
@@ -186,6 +195,7 @@ int sdbox_file_assign_uid(struct sdbox_file *file, uint32_t uid,
 	return 0;
 }
 
+// 删除save失败的附件
 static int sdbox_file_unlink_aborted_save_attachments(struct sdbox_file *file)
 {
 	struct dbox_storage *storage = file->file.storage;
@@ -224,6 +234,7 @@ static int sdbox_file_unlink_aborted_save_attachments(struct sdbox_file *file)
 	return ret;
 }
 
+// 删除save失败的文件
 int sdbox_file_unlink_aborted_save(struct sdbox_file *file)
 {
 	int ret = 0;
@@ -240,6 +251,7 @@ int sdbox_file_unlink_aborted_save(struct sdbox_file *file)
 	return ret;
 }
 
+// 创建fd
 int sdbox_file_create_fd(struct dbox_file *file, const char *path, bool parents)
 {
 	struct sdbox_file *sfile = (struct sdbox_file *)file;
@@ -289,6 +301,7 @@ int sdbox_file_create_fd(struct dbox_file *file, const char *path, bool parents)
 	return fd;
 }
 
+// 移动
 int sdbox_file_move(struct dbox_file *file, bool alt_path)
 {
 	struct mail_storage *storage = &file->storage->storage;
@@ -404,6 +417,7 @@ int sdbox_file_move(struct dbox_file *file, bool alt_path)
 	return 0;
 }
 
+// 删除附件
 static int
 sdbox_unlink_attachments(struct sdbox_file *sfile,
 			 const ARRAY_TYPE(mail_attachment_extref) *extrefs)
@@ -422,6 +436,7 @@ sdbox_unlink_attachments(struct sdbox_file *sfile,
 	return ret;
 }
 
+// 删除文件，同时删除附件
 int sdbox_file_unlink_with_attachments(struct sdbox_file *sfile)
 {
 	ARRAY_TYPE(mail_attachment_extref) extrefs;

@@ -279,6 +279,7 @@ int sdbox_mailbox_create_indexes(struct mailbox *box,
 	return 0;
 }
 
+// 获取附件名后缀：mailbox_guid+UID
 static const char *
 sdbox_get_attachment_path_suffix(struct dbox_file *_file)
 {
@@ -288,6 +289,7 @@ sdbox_get_attachment_path_suffix(struct dbox_file *_file)
 			guid_128_to_string(file->mbox->mailbox_guid),
 			file->uid);
 }
+
 
 void sdbox_set_mailbox_corrupted(struct mailbox *box)
 {
@@ -309,6 +311,7 @@ static void sdbox_set_file_corrupted(struct dbox_file *_file)
 	sdbox_set_mailbox_corrupted(&file->mbox->box);
 }
 
+
 static int sdbox_mailbox_alloc_index(struct sdbox_mailbox *mbox)
 {
 	struct sdbox_index_header hdr;
@@ -327,6 +330,7 @@ static int sdbox_mailbox_alloc_index(struct sdbox_mailbox *mbox)
 	return 0;
 }
 
+// 打开邮箱
 static int sdbox_mailbox_open(struct mailbox *box)
 {
 	struct sdbox_mailbox *mbox = (struct sdbox_mailbox *)box;

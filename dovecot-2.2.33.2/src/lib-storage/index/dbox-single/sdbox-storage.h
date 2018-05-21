@@ -33,6 +33,7 @@ struct sdbox_mailbox {
 	guid_128_t mailbox_guid;
 };
 
+// 在sdbox-save.c中定义
 extern struct mail_vfuncs sdbox_mail_vfuncs;
 
 int sdbox_mail_open(struct dbox_mail *mail, uoff_t *offset_r,

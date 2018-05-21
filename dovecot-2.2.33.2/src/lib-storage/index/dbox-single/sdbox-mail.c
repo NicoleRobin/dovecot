@@ -28,6 +28,7 @@ static void sdbox_mail_set_expunged(struct dbox_mail *mail)
 	sdbox_set_mailbox_corrupted(_mail->box);
 }
 
+
 static int sdbox_mail_file_set(struct dbox_mail *mail)
 {
 	struct mail *_mail = &mail->imail.mail.mail;
@@ -61,6 +62,7 @@ static int sdbox_mail_file_set(struct dbox_mail *mail)
 	}
 }
 
+// 获取邮件内容
 static int
 sdbox_mail_get_special(struct mail *_mail, enum mail_fetch_field field,
 		       const char **value_r)
@@ -105,6 +107,7 @@ sdbox_mail_get_special(struct mail *_mail, enum mail_fetch_field field,
 	return dbox_mail_get_special(_mail, field, value_r);
 }
 
+// 打开邮件
 int sdbox_mail_open(struct dbox_mail *mail, uoff_t *offset_r,
 		    struct dbox_file **file_r)
 {

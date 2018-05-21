@@ -231,7 +231,7 @@ int index_attachment_save_continue(struct mail_save_context *ctx)
 	do {
 		ret = i_stream_read(attach->input);
 		if (ret > 0 || ret == -2) {
-			// 获取data为附件内容被提取后剩余的数据
+			// 获取的data为附件内容被提取后剩余的数据
 			data = i_stream_get_data(attach->input, &size);
 			o_stream_nsend(ctx->data.output, data, size);
 			i_stream_skip(attach->input, size);

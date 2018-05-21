@@ -30,6 +30,7 @@ enum dbox_index_header_flags {
 	DBOX_INDEX_HEADER_FLAG_HAVE_POP3_ORDERS	= 0x02
 };
 
+// ²Ù×÷storageµÄº¯Êý
 struct dbox_storage_vfuncs {
 	/* dbox file has zero references now. it should be either freed or
 	   left open in case it's accessed again soon */
@@ -53,6 +54,7 @@ struct dbox_storage_vfuncs {
 	/* mark the file corrupted */
 	void (*set_file_corrupted)(struct dbox_file *file);
 };
+
 
 struct dbox_storage {
 	struct mail_storage storage;

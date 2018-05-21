@@ -323,6 +323,7 @@ struct mailbox_index_first_saved {
 	uint32_t timestamp;
 };
 
+// 代表一个邮箱，例如：INBOX、Sent Messages、Trush
 struct mailbox {
 	const char *name;
 	/* mailbox's virtual name (from mail_namespace_get_vname()) */
@@ -446,6 +447,7 @@ struct mailbox {
 	unsigned int corrupted_mailbox_name:1;
 };
 
+// 操作邮件的函数
 struct mail_vfuncs {
 	void (*close)(struct mail *mail);
 	void (*free)(struct mail *mail);

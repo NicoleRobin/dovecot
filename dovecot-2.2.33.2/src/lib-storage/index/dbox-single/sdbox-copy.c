@@ -9,6 +9,7 @@
 #include "sdbox-file.h"
 #include "mail-copy.h"
 
+// copy¸½¼þ
 static int
 sdbox_file_copy_attachments(struct sdbox_file *src_file,
 			    struct sdbox_file *dest_file)
@@ -89,6 +90,7 @@ sdbox_file_copy_attachments(struct sdbox_file *src_file,
 	return ret;
 }
 
+// copyÓ²Á´½Ó
 static int
 sdbox_copy_hardlink(struct mail_save_context *_ctx, struct mail *mail)
 {
@@ -160,6 +162,7 @@ sdbox_copy_hardlink(struct mail_save_context *_ctx, struct mail *mail)
 	return 1;
 }
 
+// copy£¬mail-->_ctx
 int sdbox_copy(struct mail_save_context *_ctx, struct mail *mail)
 {
 	struct dbox_save_context *ctx = (struct dbox_save_context *)_ctx;

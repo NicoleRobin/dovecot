@@ -93,6 +93,7 @@ struct dbox_metadata_header {
 	unsigned char magic_post[sizeof(DBOX_MAGIC_POST)-1];
 };
 
+// 代表一个邮件文件
 struct dbox_file {
 	struct dbox_storage *storage;
 	int refcount;

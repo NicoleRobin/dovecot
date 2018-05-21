@@ -93,6 +93,7 @@ void dbox_file_unref(struct dbox_file **_file)
 		file->storage->v.file_unrefed(file);
 }
 
+// 解析头部
 static int dbox_file_parse_header(struct dbox_file *file, const char *line)
 {
 	const char *const *tmp, *value;
@@ -142,6 +143,7 @@ static int dbox_file_parse_header(struct dbox_file *file, const char *line)
 	return 0;
 }
 
+// 读取头部
 static int dbox_file_read_header(struct dbox_file *file)
 {
 	const char *line;
@@ -169,6 +171,7 @@ static int dbox_file_read_header(struct dbox_file *file)
 	return ret;
 }
 
+// 实际执行打开文件操作
 static int dbox_file_open_fd(struct dbox_file *file, bool try_altpath)
 {
 	const char *path;
@@ -201,6 +204,7 @@ static int dbox_file_open_fd(struct dbox_file *file, bool try_altpath)
 	return 1;
 }
 
+// 打开文件内部实现
 static int dbox_file_open_full(struct dbox_file *file, bool try_altpath,
 			       bool *notfound_r)
 {
@@ -231,16 +235,19 @@ static int dbox_file_open_full(struct dbox_file *file, bool try_altpath,
 	return dbox_file_read_header(file);
 }
 
+// 打开文件
 int dbox_file_open(struct dbox_file *file, bool *deleted_r)
 {
 	return dbox_file_open_full(file, TRUE, deleted_r);
 }
 
+// 仅尝试打开primary文件
 int dbox_file_open_primary(struct dbox_file *file, bool *notfound_r)
 {
 	return dbox_file_open_full(file, FALSE, notfound_r);
 }
 
+// stat
 int dbox_file_stat(struct dbox_file *file, struct stat *st_r)
 {
 	const char *path;
@@ -277,6 +284,7 @@ int dbox_file_stat(struct dbox_file *file, struct stat *st_r)
 	return 0;
 }
 
+// 写入头部信息：version header-size header-data create-stamp
 int dbox_file_header_write(struct dbox_file *file, struct ostream *output)
 {
 	string_t *hdr;
@@ -293,6 +301,7 @@ int dbox_file_header_write(struct dbox_file *file, struct ostream *output)
 	return o_stream_send(output, str_data(hdr), str_len(hdr));
 }
 
+// 关闭文件
 void dbox_file_close(struct dbox_file *file)
 {
 	dbox_file_unlock(file);
@@ -309,6 +318,7 @@ void dbox_file_close(struct dbox_file *file)
 	file->cur_offset = (uoff_t)-1;
 }
 
+// 加锁
 int dbox_file_try_lock(struct dbox_file *file)
 {
 	int ret;
@@ -333,6 +343,7 @@ int dbox_file_try_lock(struct dbox_file *file)
 	return ret;
 }
 
+// 解锁
 void dbox_file_unlock(struct dbox_file *file)
 {
 	i_assert(!file->appending || file->lock == NULL);
@@ -348,6 +359,7 @@ void dbox_file_unlock(struct dbox_file *file)
 		i_stream_sync(file->input);
 }
 
+// 读取邮件头
 int dbox_file_read_mail_header(struct dbox_file *file, uoff_t *physical_size_r)
 {
 	struct dbox_message_header hdr;
@@ -385,6 +397,7 @@ int dbox_file_read_mail_header(struct dbox_file *file, uoff_t *physical_size_r)
 	return 1;
 }
 
+// seek
 int dbox_file_seek(struct dbox_file *file, uoff_t offset)
 {
 	uoff_t size;
@@ -406,6 +419,7 @@ int dbox_file_seek(struct dbox_file *file, uoff_t offset)
 	i_stream_seek(file->input, offset + file->msg_header_size);
 	return 1;
 }
+
 
 static int
 dbox_file_seek_next_at_metadata(struct dbox_file *file, uoff_t *offset)
@@ -432,10 +446,12 @@ dbox_file_seek_next_at_metadata(struct dbox_file *file, uoff_t *offset)
 	return 1;
 }
 
+// rewind
 void dbox_file_seek_rewind(struct dbox_file *file)
 {
 	file->cur_offset = (uoff_t)-1;
 }
+
 
 int dbox_file_seek_next(struct dbox_file *file, uoff_t *offset_r, bool *last_r)
 {
@@ -470,6 +486,7 @@ int dbox_file_seek_next(struct dbox_file *file, uoff_t *offset_r, bool *last_r)
 	return ret;
 }
 
+// 初始化append上下文
 struct dbox_file_append_context *dbox_file_append_init(struct dbox_file *file)
 {
 	struct dbox_file_append_context *ctx;
@@ -488,6 +505,7 @@ struct dbox_file_append_context *dbox_file_append_init(struct dbox_file *file)
 	return ctx;
 }
 
+// 提交append
 int dbox_file_append_commit(struct dbox_file_append_context **_ctx)
 {
 	struct dbox_file_append_context *ctx = *_ctx;
@@ -511,6 +529,7 @@ int dbox_file_append_commit(struct dbox_file_append_context **_ctx)
 	return ret;
 }
 
+// append roolback
 void dbox_file_append_rollback(struct dbox_file_append_context **_ctx)
 {
 	struct dbox_file_append_context *ctx = *_ctx;
@@ -544,6 +563,7 @@ void dbox_file_append_rollback(struct dbox_file_append_context **_ctx)
 	file->appending = FALSE;
 }
 
+// append flush
 int dbox_file_append_flush(struct dbox_file_append_context *ctx)
 {
 	struct mail_storage *storage = &ctx->file->storage->storage;
@@ -578,11 +598,13 @@ int dbox_file_append_flush(struct dbox_file_append_context *ctx)
 	return 0;
 }
 
+// checkpoint
 void dbox_file_append_checkpoint(struct dbox_file_append_context *ctx)
 {
 	ctx->last_checkpoint_offset = ctx->output->offset;
 }
 
+// 获取append stream
 int dbox_file_get_append_stream(struct dbox_file_append_context *ctx,
 				struct ostream **output_r)
 {
@@ -636,6 +658,7 @@ int dbox_file_get_append_stream(struct dbox_file_append_context *ctx,
 	return 1;
 }
 
+// 跳过头部
 int dbox_file_metadata_skip_header(struct dbox_file *file)
 {
 	struct dbox_metadata_header metadata_hdr;
@@ -667,6 +690,7 @@ int dbox_file_metadata_skip_header(struct dbox_file *file)
 	return 1;
 }
 
+// 从指定offset处开始读取metadata
 static int
 dbox_file_metadata_read_at(struct dbox_file *file, uoff_t metadata_offset)
 {
@@ -705,6 +729,7 @@ dbox_file_metadata_read_at(struct dbox_file *file, uoff_t metadata_offset)
 	return ret;
 }
 
+// 读取metadata
 int dbox_file_metadata_read(struct dbox_file *file)
 {
 	uoff_t metadata_offset;
@@ -715,6 +740,7 @@ int dbox_file_metadata_read(struct dbox_file *file)
 	if (file->metadata_read_offset == file->cur_offset)
 		return 1;
 
+	// 计算metadata偏移
 	metadata_offset = file->cur_offset + file->msg_header_size +
 		file->cur_physical_size;
 	ret = dbox_file_metadata_read_at(file, metadata_offset);
@@ -725,6 +751,7 @@ int dbox_file_metadata_read(struct dbox_file *file)
 	return 1;
 }
 
+// 根据key获取metadata
 const char *dbox_file_metadata_get(struct dbox_file *file,
 				   enum dbox_metadata_key key)
 {
@@ -739,6 +766,7 @@ const char *dbox_file_metadata_get(struct dbox_file *file,
 	return NULL;
 }
 
+// 
 uoff_t dbox_file_get_plaintext_size(struct dbox_file *file)
 {
 	const char *value;
@@ -770,6 +798,7 @@ void dbox_msg_header_fill(struct dbox_message_header *dbox_msg_hdr,
 	dbox_msg_hdr->save_lf = '\n';
 }
 
+// unlink
 int dbox_file_unlink(struct dbox_file *file)
 {
 	const char *path;

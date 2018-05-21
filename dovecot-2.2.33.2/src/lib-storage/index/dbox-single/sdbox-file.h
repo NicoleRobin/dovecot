@@ -3,6 +3,7 @@
 
 #include "dbox-file.h"
 
+// 代表一个邮件文件
 struct sdbox_file {
 	struct dbox_file file;
 	struct sdbox_mailbox *mbox;

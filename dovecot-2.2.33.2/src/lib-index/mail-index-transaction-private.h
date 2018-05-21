@@ -36,6 +36,7 @@ struct mail_index_flag_update {
 	uint16_t remove_flags;
 };
 
+// 邮件索引事务
 struct mail_index_transaction {
 	struct mail_index_transaction *prev, *next;
 	int refcount;

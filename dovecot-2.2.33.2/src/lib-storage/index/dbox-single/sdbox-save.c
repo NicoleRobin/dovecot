@@ -33,6 +33,7 @@ struct sdbox_save_context {
 	ARRAY(struct dbox_file *) files;
 };
 
+// 获取文件
 struct dbox_file *
 sdbox_save_file_get_file(struct mailbox_transaction_context *t, uint32_t seq)
 {
@@ -52,6 +53,7 @@ sdbox_save_file_get_file(struct mailbox_transaction_context *t, uint32_t seq)
 	return file;
 }
 
+// 分配mail_save_context
 struct mail_save_context *
 sdbox_save_alloc(struct mailbox_transaction_context *t)
 {
@@ -79,6 +81,7 @@ sdbox_save_alloc(struct mailbox_transaction_context *t)
 	return t->save_ctx;
 }
 
+// 将文件添加到mail_save_context
 void sdbox_save_add_file(struct mail_save_context *_ctx, struct dbox_file *file)
 {
 	struct sdbox_save_context *ctx = (struct sdbox_save_context *)_ctx;
@@ -97,12 +100,14 @@ void sdbox_save_add_file(struct mail_save_context *_ctx, struct dbox_file *file)
 	array_append(&ctx->files, &file, 1);
 }
 
+// save开始
 int sdbox_save_begin(struct mail_save_context *_ctx, struct istream *input)
 {
 	struct sdbox_save_context *ctx = (struct sdbox_save_context *)_ctx;
 	struct dbox_file *file;
 	int ret;
 
+	// 创建文件
 	file = sdbox_file_create(ctx->mbox);
 	ctx->append_ctx = dbox_file_append_init(file);
 	ret = dbox_file_get_append_stream(ctx->append_ctx,
@@ -117,10 +122,12 @@ int sdbox_save_begin(struct mail_save_context *_ctx, struct istream *input)
 	ctx->cur_file = file;
 	dbox_save_begin(&ctx->ctx, input);
 
+	// 将该文件添加到 mail_save_context
 	sdbox_save_add_file(_ctx, file);
 	return ctx->ctx.failed ? -1 : 0;
 }
 
+// save写入元数据
 static int dbox_save_mail_write_metadata(struct dbox_save_context *ctx,
 					 struct dbox_file *file)
 {
@@ -170,6 +177,7 @@ static int dbox_save_mail_write_metadata(struct dbox_save_context *ctx,
 	return 0;
 }
 
+// save结束写入
 static int dbox_save_finish_write(struct mail_save_context *_ctx)
 {
 	struct sdbox_save_context *ctx = (struct sdbox_save_context *)_ctx;
@@ -213,6 +221,7 @@ static int dbox_save_finish_write(struct mail_save_context *_ctx)
 	return ctx->ctx.failed ? -1 : 0;
 }
 
+// save结束
 int sdbox_save_finish(struct mail_save_context *ctx)
 {
 	int ret;
@@ -222,6 +231,7 @@ int sdbox_save_finish(struct mail_save_context *ctx)
 	return ret;
 }
 
+// save取消
 void sdbox_save_cancel(struct mail_save_context *_ctx)
 {
 	struct dbox_save_context *ctx = (struct dbox_save_context *)_ctx;
@@ -230,6 +240,7 @@ void sdbox_save_cancel(struct mail_save_context *_ctx)
 	(void)sdbox_save_finish(_ctx);
 }
 
+// 分配uid
 static int dbox_save_assign_uids(struct sdbox_save_context *ctx,
 				 const ARRAY_TYPE(seq_range) *uids)
 {
@@ -257,6 +268,7 @@ static int dbox_save_assign_uids(struct sdbox_save_context *ctx,
 	return 0;
 }
 
+// 分配存根uid
 static int dbox_save_assign_stub_uids(struct sdbox_save_context *ctx)
 {
 	struct dbox_file *const *files;
@@ -278,6 +290,7 @@ static int dbox_save_assign_stub_uids(struct sdbox_save_context *ctx)
 	return 0;
 }
 
+// 取消file引用
 static void dbox_save_unref_files(struct sdbox_save_context *ctx)
 {
 	struct dbox_file **files;
@@ -296,8 +309,10 @@ static void dbox_save_unref_files(struct sdbox_save_context *ctx)
 	array_free(&ctx->files);
 }
 
+// 
 // 在此函数中将分离存储的附件进行重命名
 // 疑问：为什么要两步呢？
+// 提交事务-- 前
 int sdbox_transaction_save_commit_pre(struct mail_save_context *_ctx)
 {
 	struct sdbox_save_context *ctx = (struct sdbox_save_context *)_ctx;
@@ -343,6 +358,7 @@ int sdbox_transaction_save_commit_pre(struct mail_save_context *_ctx)
 	return 0;
 }
 
+// 提交事务-- 后
 void sdbox_transaction_save_commit_post(struct mail_save_context *_ctx,
 					struct mail_index_transaction_commit_result *result)
 {
@@ -373,6 +389,7 @@ void sdbox_transaction_save_commit_post(struct mail_save_context *_ctx,
 	sdbox_transaction_save_rollback(_ctx);
 }
 
+// 回滚事务
 void sdbox_transaction_save_rollback(struct mail_save_context *_ctx)
 {
 	struct sdbox_save_context *ctx = (struct sdbox_save_context *)_ctx;
