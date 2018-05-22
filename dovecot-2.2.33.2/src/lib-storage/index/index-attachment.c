@@ -345,6 +345,8 @@ void index_attachment_append_extrefs(string_t *str,
 		}
 		str_append_c(str, ' ');
 		str_append(str, extref->path);
+
+		// Ğ´ÈëÊı¾İ¿â
 	}
 }
 

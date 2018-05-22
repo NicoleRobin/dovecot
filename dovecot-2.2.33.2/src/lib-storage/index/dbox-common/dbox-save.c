@@ -124,6 +124,7 @@ void dbox_save_end(struct dbox_save_context *ctx)
 				      !ctx->failed);
 }
 
+// 写入元信息
 void dbox_save_write_metadata(struct mail_save_context *_ctx,
 			      struct ostream *output, uoff_t output_msg_size,
 			      const char *orig_mailbox_name,

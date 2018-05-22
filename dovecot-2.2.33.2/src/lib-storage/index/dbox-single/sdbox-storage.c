@@ -58,6 +58,7 @@ sdbox_storage_find_root_dir(const struct mail_namespace *ns)
 	const char *home, *path;
 
 	if (ns->owner != NULL &&
+		// 获取家目录
 	    mail_user_get_home(ns->owner, &home) > 0) {
 		path = t_strconcat(home, "/sdbox", NULL);
 		if (access(path, R_OK|W_OK|X_OK) == 0) {

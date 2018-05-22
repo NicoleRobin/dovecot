@@ -55,7 +55,7 @@ struct dbox_storage_vfuncs {
 	void (*set_file_corrupted)(struct dbox_file *file);
 };
 
-
+// dbox_storage内部包含了一个mail_storage的成员，并且放在第一个
 struct dbox_storage {
 	struct mail_storage storage;
 	struct dbox_storage_vfuncs v;
