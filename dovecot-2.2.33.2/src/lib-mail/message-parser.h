@@ -19,11 +19,14 @@ enum message_parser_flags {
 
 struct message_parser_ctx;
 
+// 邮件块
 struct message_block {
 	/* Message part this block belongs to */
+	// 该邮件块所属的MIME part
 	struct message_part *part;
 
 	/* non-NULL if a header line was read */
+	// 如果该块是一个头部
 	struct message_header_line *hdr;
 
 	/* hdr = NULL, size = 0 block returned at the end of headers for the
@@ -68,6 +71,7 @@ int message_parser_deinit_from_parts(struct message_parser_ctx **_ctx,
 /* Read the next block of a message. Returns 1 if block is returned, 0 if
    input stream is non-blocking and more data needs to be read, -1 when all is
    done or error occurred (see stream's error status). */
+// 读取邮件中的下一块
 int message_parser_parse_next_block(struct message_parser_ctx *ctx,
 				    struct message_block *block_r);
 

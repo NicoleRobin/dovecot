@@ -34,6 +34,7 @@ struct attachment_istream_part {
 	char *content_type, *content_disposition;
 	enum mail_attachment_state state;
 	/* start offset of the message part in the original input stream */
+	// 该message part在原始输入流中的开始偏移量
 	uoff_t start_offset;
 
 	/* for saving attachments base64-decoded: */
@@ -302,9 +303,11 @@ static void astream_add_body(struct attachment_istream *astream,
 	case MAIL_ATTACHMENT_STATE_NO:
 		stream_add_data(astream, block->data, block->size);
 		break;
+
 	case MAIL_ATTACHMENT_STATE_MAYBE:
 		/* we'll write data to in-memory buffer until we reach
 		   attachment min_size */
+		// 将数据写入到内存的buffer中，直到达到附件的min_size
 		if (part->part_buf == NULL) {
 			part->part_buf =
 				buffer_create_dynamic(default_pool,
@@ -318,21 +321,28 @@ static void astream_add_body(struct attachment_istream *astream,
 		}
 		/* attachment is large enough. we'll first copy the buffered
 		   data from memory to temp file */
+		// 附件足够大，从内存中将数据拷贝到临时文件中
+
+		// 打开输出流
 		if (astream_open_output(astream) < 0) {
 			/* failed, fallback to just saving it inline */
+			// 如果失败，以内嵌的方式保存
 			part->state = MAIL_ATTACHMENT_STATE_NO;
 			stream_add_data(astream, part_buf->data, part_buf->used);
 			stream_add_data(astream, block->data, block->size);
 			break;
 		}
 		part->state = MAIL_ATTACHMENT_STATE_YES;
+		// 尝试进行base64解码
 		astream_try_base64_decode(part, part_buf->data, part_buf->used);
 		hash_format_loop(astream->set.hash_format,
 				 part_buf->data, part_buf->used);
+		// 将解码后的数据写入到输出流
 		o_stream_nsend(part->temp_output,
 			       part_buf->data, part_buf->used);
 		buffer_set_used_size(part_buf, 0);
 		/* fall through - write the new data to temp file */
+
 	case MAIL_ATTACHMENT_STATE_YES:
 		astream_try_base64_decode(part, block->data, block->size);
 		hash_format_loop(astream->set.hash_format,
@@ -561,6 +571,7 @@ static void astream_part_reset(struct attachment_istream *astream)
 	hash_format_reset(astream->set.hash_format);
 }
 
+// 一个MIME part结束
 static int
 astream_end_of_part(struct attachment_istream *astream, const char **error_r)
 {
@@ -575,6 +586,7 @@ astream_end_of_part(struct attachment_istream *astream, const char **error_r)
 		break;
 	case MAIL_ATTACHMENT_STATE_MAYBE:
 		/* MIME part wasn't large enough to be an attachment */
+		// MIME part不够大被当做一个附件，将内存中的附件数据写入到输出流（即邮件中）
 		if (part->part_buf != NULL) {
 			stream_add_data(astream, part->part_buf->data,
 					part->part_buf->used);
@@ -583,6 +595,7 @@ astream_end_of_part(struct attachment_istream *astream, const char **error_r)
 		break;
 	case MAIL_ATTACHMENT_STATE_YES:
 		old_size = astream->istream.pos - astream->istream.skip;
+		// 完成该MIME part
 		if (astream_part_finish(astream, error_r) < 0)
 			ret = -1;
 		else {
@@ -593,6 +606,8 @@ astream_end_of_part(struct attachment_istream *astream, const char **error_r)
 		}
 		break;
 	}
+
+	// 重置数据
 	part->state = MAIL_ATTACHMENT_STATE_NO;
 	astream_part_reset(astream);
 	return ret;
@@ -613,7 +628,7 @@ static int astream_read_next(struct attachment_istream *astream, bool *retry_r)
 
 	old_size = stream->pos - stream->skip;
 	switch (message_parser_parse_next_block(astream->parser, &block)) {
-	case -1:
+	case -1: // 错误
 		/* done / error */
 		ret = astream_end_of_part(astream, &error);
 		if (ret > 0) {
@@ -630,7 +645,7 @@ static int astream_read_next(struct attachment_istream *astream, bool *retry_r)
 		}
 		astream->cur_part = NULL;
 		return -1;
-	case 0:
+	case 0: // 仍有数据
 		/* need more data */
 		return 0;
 	default:
@@ -639,24 +654,29 @@ static int astream_read_next(struct attachment_istream *astream, bool *retry_r)
 
 	if (block.part != astream->cur_part && astream->cur_part != NULL) {
 		/* end of a MIME part */
+		// 一个MIME part结束
 		if (astream_end_of_part(astream, &error) < 0) {
 			io_stream_set_error(&stream->iostream, "%s", error);
 			stream->istream.stream_errno = EIO;
 			return -1;
 		}
 	}
+	
+	// 第一次读取该MIME part，记录下来
 	astream->cur_part = block.part;
 
-	if (block.hdr != NULL) {
+	if (block.hdr != NULL) { // 该块是一个头部
 		/* parsing a header */
+		// 解析头部
 		astream_parse_header(astream, block.hdr);
 	} else if (block.size == 0) {
 		/* end of headers */
-		if (astream_want_attachment(astream, block.part)) {
+		if (astream_want_attachment(astream, block.part)) { // 该块所属的MIME part是所需要的attachment
 			astream->part.state = MAIL_ATTACHMENT_STATE_MAYBE;
 			astream->part.start_offset = stream->parent->v_offset;
 		}
 	} else {
+		// 将该块输出到body中
 		astream_add_body(astream, &block);
 	}
 	new_size = stream->pos - stream->skip;
@@ -664,6 +684,7 @@ static int astream_read_next(struct attachment_istream *astream, bool *retry_r)
 	return new_size - old_size;
 }
 
+// 读取
 static ssize_t
 i_stream_attachment_extractor_read(struct istream_private *stream)
 {
@@ -680,6 +701,7 @@ i_stream_attachment_extractor_read(struct istream_private *stream)
 	return ret;
 }
 
+// 关闭
 static void i_stream_attachment_extractor_close(struct iostream_private *stream,
 						bool close_parent)
 {
@@ -729,6 +751,7 @@ i_stream_create_attachment_extractor(struct istream *input,
 	astream->istream.istream.seekable = FALSE;
 
 	astream->pool = pool_alloconly_create("istream attachment", 1024);
+	// 初始化邮件解析器
 	astream->parser = message_parser_init(astream->pool, input, 0,
 				MESSAGE_PARSER_FLAG_INCLUDE_MULTIPART_BLOCKS |
 				MESSAGE_PARSER_FLAG_INCLUDE_BOUNDARIES);

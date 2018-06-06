@@ -396,6 +396,8 @@ struct mail {
 	/* always set */
 	struct mailbox *box;
 	struct mailbox_transaction_context *transaction;
+	// seq是什么？根据日志看seq是sdbox格式邮件名最后的数字后缀
+	// uid是什么？
 	uint32_t seq, uid;
 
 	unsigned int expunged:1;

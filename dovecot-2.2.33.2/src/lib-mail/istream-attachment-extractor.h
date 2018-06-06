@@ -37,8 +37,11 @@ struct istream_attachment_settings {
 	bool (*want_attachment)(const struct istream_attachment_header *hdr,
 				void *context);
 	/* Create a temporary file. */
+	// 创建临时文件
 	int (*open_temp_fd)(void *context);
+	
 	/* Create output stream for attachment */
+	// 为附件创建一个输出流
 	int (*open_attachment_ostream)(struct istream_attachment_info *info,
 				       struct ostream **output_r,
 				       const char **error_r, void *context);
@@ -46,10 +49,12 @@ struct istream_attachment_settings {
 	   and the error shouldn't be replaced (other than maybe enhanced).
 	   Otherwise, if close_attachment_ostream() fails and returns -1, it
 	   should also set *error. */
+	// 关闭附件输出流
 	int (*close_attachment_ostream)(struct ostream *output, bool success,
 					const char **error, void *context);
 };
 
+// 创建附件提取器
 struct istream *
 i_stream_create_attachment_extractor(struct istream *input,
 				     struct istream_attachment_settings *set,
@@ -58,6 +63,7 @@ i_stream_create_attachment_extractor(struct istream *input,
 /* Returns TRUE if the last read returned 0 only because
    drain_parent_input=FALSE and we didn't have anything to return, but
    retrying a read from parent stream could give something the next time. */
+// 
 bool i_stream_attachment_extractor_can_retry(struct istream *input);
 
 #endif
